@@ -1,7 +1,5 @@
 import subprocess
 import os
-# from enum import Enum, auto
-# from subprocess import CalledProcessError
 
 from test import Test, Result
 
@@ -36,20 +34,21 @@ def test_cmd_simple(
 
 
 def check_bad_files() -> bool:
+    "Returns `True` if there are any extra files in the project folder."
     script_dir = os.path.dirname(os.path.abspath(__file__))
     with open(script_dir + "/expected_files.txt") as f:
         requirements = {line.strip() for line in f}
-        if requirements - set(os.listdir()):
-            return True
-    return False
+        if requirements == set(os.listdir()):
+            return False
+    return True
 
 
-# subprocess.run(["make", "fclean"])
-# result = Result.SUCCESS \
-#     if check_bad_files() else Result.FAILURE
-# add_test(
-#     tests, "Project",
-#     Test("Extra files", "No unauthorized files are present.", result))
+subprocess.run(["make", "fclean"])
+result = Result.FAILURE \
+    if check_bad_files() else Result.SUCCESS
+add_test(
+    tests, "Project",
+    Test("Extra files", "No unauthorized files are present.", result))
 
 test_cmd_simple(
     ["norminette"], tests, "The Norm",
