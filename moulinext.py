@@ -72,7 +72,7 @@ ok_count, ko_count = 0, 0
 
 for group in tests.keys():
     print(f"\n{HI}{group}{X}")
-    print(f"{D}{'─' * 21 + '┬' + '─' * 59}{X}")
+    print(f"{D}{'─' * 80}{X}")
     for test in tests[group]:
         if test.result == Result.SUCCESS:
             color, grade = G, "OK"
@@ -80,7 +80,7 @@ for group in tests.keys():
         else:
             color, grade = R, "KO"
             ko_count += 1
-        print(f"{test.input:>20} {D}│{X} "
+        print(f"{test.input:>20} {D}•{X} "
               f"{color}[{grade}]{X} {test.description}")
 
 if ko_count:
