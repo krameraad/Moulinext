@@ -2,57 +2,79 @@ import subprocess
 import os
 import shutil
 
-from test import Test, Result, add_test, test_cmd_simple
-
-
-X = "\033[0m"     # Clear formatting
-H = "\033[1m"     # Bold (Header)
-HU = "\033[1;4m"  # Header Underlined
-HI = "\033[1;3m"  # Header Italics
-D = "\033[2m"     # Dim
-R = "\033[91m"    # Red
-G = "\033[92m"    # Green
+from test import (
+    Test,
+    Result,
+    add_test,
+    test_cmd_simple,
+    list_tests,
+)
+from norm import test_norminette
+from formatting import (  # noqa
+    X,
+    H,
+    HU,
+    HI,
+    D,
+    R,
+    G,
+    DG,
+)
 
 tests: dict[str, list[Test]] = {}
 
 
-prog_dir = os.path.dirname(os.path.abspath(__file__))
-test_dir = prog_dir + "/tests"
-tmp_dir = prog_dir + "/.tmp"
+program_dir = os.path.dirname(os.path.abspath(__file__))
+test_dir = program_dir + "/tests"
+tmp_dir = program_dir + "/.tmp"
+lib_path = tmp_dir + "/libft.a"
+project_dir = os.getcwd()
+print(lib_path, test_dir + "/test_strlen.c")
 
-# shutil.copy(os.curdir, tmp_dir + "/test")
+if os.path.exists(tmp_dir):
+    shutil.rmtree(tmp_dir)
+shutil.copytree(project_dir, tmp_dir)
+os.chdir(tmp_dir)
+
+with open(program_dir + "/header.txt") as f:
+    print(f.read())
 
 
-def check_bad_files() -> bool:
+def check_bad_files(dir: str) -> bool:
     "Returns `True` if there are any extra files in the project folder."
-    with open(prog_dir + "/expected_files.txt") as f:
+    with open(dir + "/expected_files.txt") as f:
         requirements = {line.strip() for line in f}
         if requirements == set(os.listdir()):
             return False
     return True
 
 
-subprocess.run(["make", "fclean"])
-result = Result.FAILURE \
-    if check_bad_files() else Result.SUCCESS
+result = Result(int(check_bad_files(program_dir)))
 add_test(
     tests, "Project",
-    Test("Extra files", "No unauthorized files are present.", result))
+    Test("Extra files", "No unauthorized files are present.", result)
+)
+
+test_norminette(tests)
 
 test_cmd_simple(
-    ["norminette"], tests, "The Norm",
-    Test("norminette", "All files pass norminette.")
-)
-test_cmd_simple(
-    ["make"], tests, "Makefile",
+    ["make", "-s", "-j"], tests, "Makefile",
     Test("make", "Library compiles normally using `make`.")
 )
 
-result = Result.SUCCESS \
-    if os.path.exists("./libft.a") else Result.FAILURE
+result = Result(int(not os.path.exists("./libft.a")))
 add_test(
     tests, "Makefile",
     Test("libft.a", "Library is found at `./libft.a`.", result))
+
+
+if list_tests(tests, "Makefile"):
+    print(f"{R}\nFailed to run tests: library compilation failure.{X}")
+else:
+    out = subprocess.run(["gcc", test_dir + "/test_strlen.c", lib_path])
+    if not out.returncode:
+        out = subprocess.run(["a.out"])
+    print(f"{out.returncode:032b}")
 
 
 print(f"{HU}\nError details{X}")
@@ -70,10 +92,7 @@ for group in tests.keys():
             ko_count += 1
         print(f"{test.input:>20} {check} {test.description}")
 
-if ko_count:
-    color = R
-else:
-    color = G
+color = R if ko_count else G
 print(
     f"{HU}\nTests passed:{X} "
     f"{color}{ok_count:>6} / {ok_count + ko_count}{X}")
