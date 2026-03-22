@@ -4,5 +4,6 @@ HU = "\033[1;4m"  # Header Underlined
 HI = "\033[1;3m"  # Header Italics
 D = "\033[2m"     # Dim
 R = "\033[91m"    # Red
+DR = "\033[31m"   # Dark Red
 G = "\033[92m"    # Green
-DG = "\033[32m"    # Dark Green
+DG = "\033[32m"   # Dark Green

@@ -1,7 +1,9 @@
-import subprocess
+# import subprocess
 import os
 import shutil
+from pathlib import Path
 
+from functests import test_func
 from test import (
     Test,
     Result,
@@ -10,89 +12,61 @@ from test import (
     list_tests,
 )
 from norm import test_norminette
-from formatting import (  # noqa
-    X,
-    H,
-    HU,
-    HI,
-    D,
-    R,
-    G,
-    DG,
-)
+from footer import print_footer
+from formatting import X, R
 
-tests: dict[str, list[Test]] = {}
+test_collection: dict[str, list[Test]] = {}
 
+# Path setup
+# -----------------------------------------------------------------------------
+path_script = Path(__file__).absolute().parent
+path_tests = path_script / "tests"
+path_tmp = path_script / ".tmp"
+path_libft = path_tmp / "libft.a"
+path_project = Path().resolve()
 
-program_dir = os.path.dirname(os.path.abspath(__file__))
-test_dir = program_dir + "/tests"
-tmp_dir = program_dir + "/.tmp"
-lib_path = tmp_dir + "/libft.a"
-project_dir = os.getcwd()
-print(lib_path, test_dir + "/test_strlen.c")
+if path_tmp.exists():
+    shutil.rmtree(path_tmp)
+shutil.copytree(path_project, path_tmp)
+os.chdir(path_tmp)
 
-if os.path.exists(tmp_dir):
-    shutil.rmtree(tmp_dir)
-shutil.copytree(project_dir, tmp_dir)
-os.chdir(tmp_dir)
-
-with open(program_dir + "/header.txt") as f:
-    print(f.read())
+# -----------------------------------------------------------------------------
+print(Path(path_script / "header.txt").read_text())
 
 
 def check_bad_files(dir: str) -> bool:
     "Returns `True` if there are any extra files in the project folder."
-    with open(dir + "/expected_files.txt") as f:
+    with open(dir / "expected_files.txt") as f:
         requirements = {line.strip() for line in f}
         if requirements == set(os.listdir()):
             return False
     return True
 
 
-result = Result(int(check_bad_files(program_dir)))
+result = Result(int(check_bad_files(path_script)))
 add_test(
-    tests, "Project",
-    Test("Extra files", "No unauthorized files are present.", result)
+    test_collection, "Project",
+    [Test("Extra/missing files", "Repo contents match requirements.", result)]
 )
 
-test_norminette(tests)
+test_norminette(test_collection)
 
 test_cmd_simple(
-    ["make", "-s", "-j"], tests, "Makefile",
+    ["make", "-s", "-j"], test_collection, "Makefile",
     Test("make", "Library compiles normally using `make`.")
 )
 
 result = Result(int(not os.path.exists("./libft.a")))
 add_test(
-    tests, "Makefile",
-    Test("libft.a", "Library is found at `./libft.a`.", result))
+    test_collection, "Makefile",
+    [Test("libft.a", "Library is found at `./libft.a`.", result)]
+)
 
 
-if list_tests(tests, "Makefile"):
+if list_tests(test_collection, "Makefile"):
     print(f"{R}\nFailed to run tests: library compilation failure.{X}")
 else:
-    out = subprocess.run(["gcc", test_dir + "/test_strlen.c", lib_path])
-    if not out.returncode:
-        out = subprocess.run(["a.out"])
-    print(f"{out.returncode:032b}")
+    add_test(
+        test_collection, "strlen", test_func(path_tests, "strlen", True))
 
-
-print(f"{HU}\nError details{X}")
-ok_count, ko_count = 0, 0
-
-for group in tests.keys():
-    print(f"\n{HI}{group}{X}")
-    print(f"{D}{'─' * 80}{X}")
-    for test in tests[group]:
-        if test.result == Result.SUCCESS:
-            check = G + "●" + X
-            ok_count += 1
-        else:
-            check = R + "◯" + X
-            ko_count += 1
-        print(f"{test.input:>20} {check} {test.description}")
-
-color = R if ko_count else G
-print(
-    f"{HU}\nTests passed:{X} "
-    f"{color}{ok_count:>6} / {ok_count + ko_count}{X}")
+print_footer(test_collection)

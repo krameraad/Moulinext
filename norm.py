@@ -1,10 +1,5 @@
 from test import Test, test_cmd_simple
-from formatting import (
-    X,
-    HU,
-    R,
-    DG,
-)
+from formatting import X, HU, R, DG
 
 
 def test_norminette(tests: dict) -> None:

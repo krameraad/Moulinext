@@ -14,7 +14,7 @@ class Result(IntEnum):
 
 @dataclass
 class Test:
-    input: str
+    name: str
     description: str
     result: Result | None = Result.SUCCESS
 
@@ -48,13 +48,13 @@ def list_tests(
 def add_test(
         tests: dict[str, list[Test]],
         category: str,
-        test: Test
+        to_add: list[Test]
         ) -> None:
-    "Add test result `test` to `tests`, in `category`."
+    "Add test results `to_add` to `tests`, in `category`."
     if category not in tests:
-        tests.update({category: [test]})
+        tests.update({category: to_add})
     else:
-        tests[category].append(test)
+        tests[category] += to_add
 
 
 def test_cmd_simple(
@@ -67,5 +67,5 @@ def test_cmd_simple(
     proc = subprocess.run(cmd, capture_output=True)
     if proc.returncode:
         test.result = Result.FAILURE
-    add_test(tests, group, test)
+    add_test(tests, group, [test])
     return proc.stdout
