@@ -1,7 +1,8 @@
 import subprocess
 import os
+import shutil
 
-from test import Test, Result
+from test import Test, Result, add_test, test_cmd_simple
 
 
 X = "\033[0m"     # Clear formatting
@@ -15,28 +16,16 @@ G = "\033[92m"    # Green
 tests: dict[str, list[Test]] = {}
 
 
-def add_test(tests: dict[str, list[Test]], group: str, test: Test) -> None:
-    if group not in tests:
-        tests.update({group: [test]})
-    else:
-        tests[group].append(test)
+prog_dir = os.path.dirname(os.path.abspath(__file__))
+test_dir = prog_dir + "/tests"
+tmp_dir = prog_dir + "/.tmp"
 
-
-def test_cmd_simple(
-            cmd: list[str],
-            tests: dict[str, list[Test]],
-            group: str,
-            test: Test,
-        ) -> None:
-    if subprocess.run(cmd).returncode:
-        test.result = Result.FAILURE
-    add_test(tests, group, test)
+# shutil.copy(os.curdir, tmp_dir + "/test")
 
 
 def check_bad_files() -> bool:
     "Returns `True` if there are any extra files in the project folder."
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(script_dir + "/expected_files.txt") as f:
+    with open(prog_dir + "/expected_files.txt") as f:
         requirements = {line.strip() for line in f}
         if requirements == set(os.listdir()):
             return False
@@ -74,13 +63,12 @@ for group in tests.keys():
     print(f"{D}{'─' * 80}{X}")
     for test in tests[group]:
         if test.result == Result.SUCCESS:
-            color, grade = G, "OK"
+            check = G + "●" + X
             ok_count += 1
         else:
-            color, grade = R, "KO"
+            check = R + "◯" + X
             ko_count += 1
-        print(f"{test.input:>20} {D}•{X} "
-              f"{color}[{grade}]{X} {test.description}")
+        print(f"{test.input:>20} {check} {test.description}")
 
 if ko_count:
     color = R
