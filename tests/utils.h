@@ -1,3 +1,9 @@
+#pragma once
+
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+
 #define CREATE_BUF                 \
 char buf[1024];                    \
 FILE *f = fopen(argv[1], "rb");    \

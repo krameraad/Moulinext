@@ -35,7 +35,7 @@ print(Path(path_script / "header.txt").read_text())
 
 
 def check_bad_files(dir: str) -> bool:
-    "Returns `True` if there are any extra files in the project folder."
+    "Returns `True` if there's a file mismatch in the project folder."
     with open(dir / "expected_files.txt") as f:
         requirements = {line.strip() for line in f}
         if requirements == set(os.listdir()):
@@ -46,7 +46,8 @@ def check_bad_files(dir: str) -> bool:
 result = Result(int(check_bad_files(path_script)))
 add_test(
     test_collection, "Project",
-    [Test("Extra/missing files", "Repo contents match requirements.", result)]
+    [Test("Extra/missing files",
+          "Repository contents match requirements.", result)]
 )
 
 test_norminette(test_collection)
@@ -66,7 +67,11 @@ add_test(
 if list_tests(test_collection, "Makefile"):
     print(f"{R}\nFailed to run tests: library compilation failure.{X}")
 else:
-    add_test(
-        test_collection, "strlen", test_func(path_tests, "strlen", True))
+    add_test(test_collection, "strlen",
+             test_func(path_tests, "strlen", True))
+    add_test(test_collection, "isalpha",
+             test_func(path_tests, "isalpha"))
+    add_test(test_collection, "atoi",
+             test_func(path_tests, "atoi"))
 
 print_footer(test_collection)
