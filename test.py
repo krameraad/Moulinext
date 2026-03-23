@@ -41,12 +41,10 @@ def add_tests(
     if category not in tests_performed:
         tests_performed.update({category: to_add})
         print(f"\n{B + category + X:<30}", end="")
-        for test in to_add:
-            print(RESULT_TO_GLYPH[test.result], end="")
     else:
         tests_performed[category] += to_add
-        for test in to_add:
-            print(RESULT_TO_GLYPH[test.result], end="")
+    for test in to_add:
+        print(RESULT_TO_GLYPH[test.result], end="")
 
 
 def test_cmd_simple(

@@ -3,7 +3,7 @@ from formatting import X, H, HU, HI, D, R, G, M
 
 
 def print_footer(tests_performed: dict[str, list[Test]]) -> None:
-    print(f"{HU}\n\nError details{X}")
+    print(f"{HU}\nError details{X}")
     print(
         f"{H}Key:     {G}● Success    {R}◯ Failure    "
         f"… Time-out    {M}& Memory leak    * Malloc guard{X}")

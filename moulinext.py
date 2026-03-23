@@ -1,7 +1,6 @@
 # import subprocess
 import os
 import shutil
-import time
 from pathlib import Path
 
 from test import (
@@ -14,7 +13,7 @@ from test import (
 )
 from norm import test_norminette
 from footer import print_footer
-from formatting import X, H, R
+from formatting import X, R
 
 tests_performed: dict[str, list[Test]] = {}
 
@@ -66,7 +65,7 @@ add_tests(
 
 
 if [x for x in tests_performed["Makefile"] if x.result != Result.SUCCESS]:
-    print(f"{R}\nFailed to run tests: library compilation failure.{X}")
+    print(f"{R}\n\nFailed to run tests: library compilation failure.{X}")
 else:
     test_ctype(tests_performed, path_tests, "isalpha")
     test_ctype(tests_performed, path_tests, "isdigit")
@@ -75,5 +74,6 @@ else:
     test_ctype(tests_performed, path_tests, "isprint")
     test_func(tests_performed, path_tests, "strlen", True)
     test_func(tests_performed, path_tests, "atoi", True)
+    print()
 
 print_footer(tests_performed)

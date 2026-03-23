@@ -1,6 +1,6 @@
 import subprocess
 
-from test import Test, Result, add_tests, test_cmd_simple
+from test import Test, Result, add_tests
 from formatting import X, HU, R, DG
 
 
