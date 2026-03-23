@@ -4,7 +4,7 @@ from enum import IntEnum, auto
 from dataclasses import dataclass
 
 from test_registry import REGISTRY
-from formatting import X, R, G, B, M
+from formatting import X, D, R, G, M
 
 
 class Result(IntEnum):
@@ -40,7 +40,7 @@ def add_tests(
     "Add test results `to_add` to `tests`, in `category`."
     if category not in tests_performed:
         tests_performed.update({category: to_add})
-        print(f"\n{B + category + X:<30}", end="")
+        print(f"\n{f'{category} {D}-{X} ':>31}", end="")
     else:
         tests_performed[category] += to_add
     for test in to_add:
