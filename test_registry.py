@@ -1,16 +1,16 @@
 REGISTRY = {
-    "strlen": [
-        ("3char", "Three characters."),
-        ("empty", "Empty string."),
-        ("middleNUL", "String with a NUL-terminator in the middle."),
-    ],
-    "isalpha": [
+    "ctype": [
         ("alpha_lower", "Lowercase alphabet (abc)."),
         ("alpha_upper", "Uppercase alphabet (ABC)."),
         ("digits", "Digits (0123456789)."),
         ("punctuation", "Punctuation marks (.,!?)."),
         ("nonprintable", "Characters below 32 in the ASCII table."),
         ("ext_ascii", "Characters above 127 in the ASCII table."),
+    ],
+    "strlen": [
+        ("3char", "Three characters."),
+        ("empty", "Empty string."),
+        ("middleNUL", "String with a NUL-terminator in the middle."),
     ],
     "atoi": [
         ("0", "Zero."),

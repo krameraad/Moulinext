@@ -1,21 +1,22 @@
 # import subprocess
 import os
 import shutil
+import time
 from pathlib import Path
 
-from functests import test_func
 from test import (
     Test,
     Result,
-    add_test,
+    add_tests,
     test_cmd_simple,
-    list_tests,
+    test_func,
+    test_ctype,
 )
 from norm import test_norminette
 from footer import print_footer
-from formatting import X, R
+from formatting import X, H, R
 
-test_collection: dict[str, list[Test]] = {}
+tests_performed: dict[str, list[Test]] = {}
 
 # Path setup
 # -----------------------------------------------------------------------------
@@ -43,35 +44,36 @@ def check_bad_files(dir: str) -> bool:
     return True
 
 
+test_norminette(tests_performed)
+
 result = Result(int(check_bad_files(path_script)))
-add_test(
-    test_collection, "Project",
+add_tests(
+    tests_performed, "Project",
     [Test("Extra/missing files",
           "Repository contents match requirements.", result)]
 )
 
-test_norminette(test_collection)
-
 test_cmd_simple(
-    ["make", "-s", "-j"], test_collection, "Makefile",
+    ["make", "-s", "-j"], tests_performed, "Makefile",
     Test("make", "Library compiles normally using `make`.")
 )
 
 result = Result(int(not os.path.exists("./libft.a")))
-add_test(
-    test_collection, "Makefile",
+add_tests(
+    tests_performed, "Makefile",
     [Test("libft.a", "Library is found at `./libft.a`.", result)]
 )
 
 
-if list_tests(test_collection, "Makefile"):
+if [x for x in tests_performed["Makefile"] if x.result != Result.SUCCESS]:
     print(f"{R}\nFailed to run tests: library compilation failure.{X}")
 else:
-    add_test(test_collection, "strlen",
-             test_func(path_tests, "strlen", True))
-    add_test(test_collection, "isalpha",
-             test_func(path_tests, "isalpha"))
-    add_test(test_collection, "atoi",
-             test_func(path_tests, "atoi"))
+    test_ctype(tests_performed, path_tests, "isalpha")
+    test_ctype(tests_performed, path_tests, "isdigit")
+    test_ctype(tests_performed, path_tests, "isalnum")
+    test_ctype(tests_performed, path_tests, "isascii")
+    test_ctype(tests_performed, path_tests, "isprint")
+    test_func(tests_performed, path_tests, "strlen", True)
+    test_func(tests_performed, path_tests, "atoi", True)
 
-print_footer(test_collection)
+print_footer(tests_performed)
